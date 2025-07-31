@@ -1,0 +1,7 @@
+.noteItem {
+    padding: 10px;
+    background-color: #353535;
+    border-radius: 6px;
+    list-style-type: none;
+    width: 500px;
+}
