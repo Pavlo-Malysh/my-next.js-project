@@ -1,30 +1,34 @@
 import { getSingleNote } from "@/lib/api";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import NoteDetailsClient from "./NoteDetails.client";
 
 interface Props {
     params: Promise<{ id: string }>;
 }
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const NoteDetails = async ({ params }: Props) => {
     const { id } = await params;
     console.log('params', params);
 
-    delay(3000);
-    const note = await getSingleNote(id)
-    console.log('params id:', id);
-    console.log(note);
+    const queryClient = new QueryClient();
 
-    const formattedDate = note.updatedAt
-        ? `Updated at: ${note.updatedAt}`
-        : `Created at: ${note.createdAt}`;
+
+    await queryClient.prefetchQuery({
+        queryKey: ['note', id],
+        queryFn: () => getSingleNote(id),
+    })
+
+    console.log('params id:', id);
+
+
+    // const formattedDate = note.updatedAt
+    //     ? `Updated at: ${note.updatedAt}`
+    //     : `Created at: ${note.createdAt}`;
 
     return (
-        <div>
-            <h2>{note.title}</h2>
-            <p>{note.content}</p>
-            <button>Edit</button>
-            <p>{formattedDate}</p>
-        </div>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <NoteDetailsClient />
+        </HydrationBoundary>
     );
 }
 
